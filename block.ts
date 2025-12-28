@@ -15,6 +15,20 @@ export class Block {
         );
         this.name = name;
     }
+
+    height (): number {
+        return this.shape.length;
+    }
+
+    width (): number {
+        return this.shape[0] !== undefined ? this.shape[0].length : 0;
+    }
+
+    printBlock  (): void {
+        for (const row of this.shape) {
+            console.log(row.map(cell => cell === "FILLED" ? "#" : ".").join(""));
+        }
+    }
 }
 
 // rotate a block 90 degrees clockwise
@@ -62,17 +76,22 @@ export function getBlockVariations(block: Block): Block[] {
     for (let i = 0; i < 4; i++) {
         // Check for duplicates
         if (!rotations.some(b => JSON.stringify(b.shape) === JSON.stringify(currentBlock.shape))) {
-            rotations.push(currentBlock);
+            var rotatedBlock = new Block(currentBlock.shape.map(r => r.map(c => c === "FILLED" ? "#" : ".").join("")), 
+                                        currentBlock.name+"_rot" + (i*90));
+            rotations.push(rotatedBlock);
         }
         currentBlock = rotateBlock(currentBlock);
     }
 
     // now also flip and get rotations of the flipped block
     currentBlock = flipBlock(block);
+    currentBlock.name += "_flipped";
     for (let i = 0; i < 4; i++) {
         // Check for duplicates
         if (!rotations.some(b => JSON.stringify(b.shape) === JSON.stringify(currentBlock.shape))) {
-            rotations.push(currentBlock);
+            var rotatedBlock = new Block(currentBlock.shape.map(r => r.map(c => c === "FILLED" ? "#" : ".").join("")), 
+                                        currentBlock.name+"_rot" + (i*90));
+            rotations.push(rotatedBlock);
         }
         currentBlock = rotateBlock(currentBlock);
     }
@@ -120,7 +139,7 @@ export function getAvailableBlocks(): Block[] {
             "##.",
             "###",
         ],
-        ["T Shape", "###", ".#.", ".#."],    // Pentomino, T
+        // ["T Shape", "###", ".#.", ".#."],    // Pentomino, T
         ["U Shape", "#.#", "###"],           // Pentomino, U
         ["V Shape", "###", "#..", "#.."],    // Pentomino, V
         ["Y Shape", "#.", "##", "#.", "#."], // Pentomino, Y
