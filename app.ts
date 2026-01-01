@@ -4,7 +4,7 @@ import * as block from "./block.js";
 // app.ts
 function greet(name: string) {
     const todaysBoard: board.Board = new board.Board();
-    todaysBoard.markDayMonth(28, 12); // set the current date
+    todaysBoard.markDayMonth(31, 12); // set the current date
     todaysBoard.printBoard();
 
     // get available blocks then iterate through and print their rotations
@@ -24,7 +24,6 @@ function greet(name: string) {
     //     } 
     // }
 
-    
     return `Hello, ${name}!`;
 }
 

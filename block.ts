@@ -143,7 +143,18 @@ export function getAvailableBlocks(): Block[] {
         ["U Shape", "#.#", "###"],           // Pentomino, U
         ["V Shape", "###", "#..", "#.."],    // Pentomino, V
         ["Y Shape", "#.", "##", "#.", "#."], // Pentomino, Y
-        ["Z Shape", "##.", ".#.", ".##"],    // Pentomino, Z
+        ["Z Shape", "##.", ".#.", ".##"]    // Pentomino, Z
+    ];
+
+    const blockShapes2: string[][] = [
+        ["U Shape", "##", "#.", "##"],
+        ["Y Shape", "####", "..#."], 
+        ["P Shape", "###", ".##"],
+        ["N Shape", ".###", "##.."],
+        ["L Shape", "#.","#.","#.","##"],
+        ["Rectangle", "##","##","##"],
+        ["Z Shape", "..#","###","#.."],
+        ["V Shape", "..#","..#","###"]
     ];
 
     for (const shape of blockShapes) {

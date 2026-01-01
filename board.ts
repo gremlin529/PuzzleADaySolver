@@ -3,6 +3,7 @@
 // this code reperents the board and the state of each squware on it which can be 
 
 import { Block, getBlockVariations } from "./block";
+import { Solution } from "./solutions";
 
 export type Point = {
     row: number;
@@ -27,9 +28,9 @@ export type BoardSquare = {
 
 export class Board {
     board : BoardSquare[][];
-    solutions: BoardSquare[][][] = [];
+    solution: Solution;
     depth: number = 0;
-
+    
     // EXAMPLE OF A BOARD
     //  JAN FEB MAR APR MAY JUN WALL
     //  JUL AUG SEP OCT NOV DEC WALL
@@ -62,22 +63,18 @@ export class Board {
             board.push(boardRow);
         }
         this.board = board;
-        this.solutions = [];
+        this.solution = new Solution();
     }
 
     printBoard(): void {
-        this.printABoard(this.board);
+        Board.printABoard(this.board);
     }
 
     printSolutions(): void {
-        console.log("Solutions Found: " + this.solutions.length);
-        for (const solution of this.solutions) {
-            this.printABoard(solution);
-            console.log("-----");
-        }
+        this.solution.printSolutions();
     }
 
-    printABoard(board: BoardSquare[][]): void {
+    public static printABoard(board: BoardSquare[][]): void {
         console.log("Current Board State:");
 
         for (const row of board) {
@@ -130,8 +127,24 @@ export class Board {
     placeBlock(block: Block, position:Point ): boolean {
         // try and place the block at the given position
         // return true if successful, false if not (out of bounds or overlapping)
-        const { row, col } = position;
+        let { row, col } = position;
 
+        // first look to see if the top row of the block has any empty spaces
+        // if so we can adjust the starting row/col to skip those
+        let topRowEmptyCols = 0;
+        for (let c = 0; c < block.width(); c++) {
+            // @ts-ignore: Object is possibly 'null'.
+            if (block.shape[0][c] === "EMPTY") {
+                topRowEmptyCols++;
+            }
+            else {
+                break;
+            }
+        }
+
+        col -= topRowEmptyCols;
+
+        // check if the block is outside the board bounds
         if (row < 0 || row >= this.board.length || this.board[0] === undefined || col >= this.board[0].length ||
             col < 0 || row + block.height() > this.board.length || col + block.width() > this.board[0].length ) {
             return false;
@@ -158,7 +171,22 @@ export class Board {
     }
 
     removeBlock(block: Block, position: Point): void {
-        const { row, col } = position;
+        let { row, col } = position;
+
+        // first look to see if the top row of the block has any empty spaces
+        // if so we can adjust the starting row/col to skip those
+        let topRowEmptyCols = 0;
+        for (let c = 0; c < block.width(); c++) {
+            // @ts-ignore: Object is possibly 'null'.
+            if (block.shape[0][c] === "EMPTY") {
+                topRowEmptyCols++;
+            }
+            else {
+                break;
+            }
+        }
+
+        col -= topRowEmptyCols;
         for (let r = row; r < row + block.height(); r++) {
             for (let c = col; c < col + block.width(); c++) {
                 // @ts-ignore: Object is possibly 'null'.
@@ -195,7 +223,7 @@ export class Board {
             const solution: BoardSquare[][] = this.board.map(row => 
                 row.map(square => ({ ...square }))
             );
-            this.solutions.push(solution);
+            this.solution.addSolutionIfUnique(solution);
             this.depth--;
             return;
         } else if (availableBlocks !== undefined && availableBlocks[0] !== undefined) {
@@ -217,10 +245,11 @@ export class Board {
                         if (this.placeBlock(block, emptySpot.point)) {
                             //console.log("Placed block".padStart(this.depth," "), block.name, 
                             //    " at ", emptySpot.point, "Remaing blocks:", remainingBlocks.length);
-                            // if (remainingBlocks.length < 3) {
+                            // if (remainingBlocks.length < 2) {
                             //     this.printBoard();
                             // } 
 
+                            // this.printBoard();
                             this.solve(remainingBlocks);
                             
                             this.removeBlock(block, emptySpot.point);
@@ -228,7 +257,10 @@ export class Board {
                             // this.printBoard();
                         }
                     }
+                } else if (availableBlocks.length !== 0) {
+                    console.log("How did we have no empty spots and pieces left? Error!");
                 }
+
             }
         }
         this.depth--;
